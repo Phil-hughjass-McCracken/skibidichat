@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skibidi Baddie Ticklers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 768px;
+            height: 90vh;
+            background-color: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 2px solid #e5e7eb;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #f06, #9f6);
+            padding: 1rem 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 2px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+        }
+        
+        .user-id-display {
+            font-size: 0.8rem;
+            font-weight: normal;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 0.2rem 0.5rem;
+            border-radius: 9999px;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .header-button {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .header-button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* --- Chat View Styles --- */
+        .chat-view {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            -ms-overflow-style: none; /* for Internet Explorer, Edge */
+            scrollbar-width: none; /* for Firefox */
+        }
+
+        .message-area::-webkit-scrollbar {
+            display: none; /* for Chrome, Safari, and Opera */
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            word-wrap: break-word;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out;
+            border: 1px solid #d1d5db;
+        }
+
+        .message-bubble:hover {
+            transform: translateY(-2px);
+        }
+
+        .message-text {
+            color: #374151;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .message-sender {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .message-timestamp {
+            font-size: 0.65rem;
+            color: #9ca3af;
+            align-self: flex-end;
+            margin-top: 0.5rem;
+        }
+
+        .message-self {
+            align-self: flex-end;
+            background-color: #d1fae5;
+        }
+
+        .message-other {
+            align-self: flex-start;
+            background-color: #e5e7eb;
+        }
+        
+        .message-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .message-file {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .message-file:hover {
+            text-decoration: underline;
+        }
+
+        .input-area {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-top: 2px solid #e5e7eb;
+            background-color: #fafafa;
+            gap: 0.5rem;
+        }
+
+        .input-area textarea {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 1.5rem;
+            border: 1px solid #d1d5db;
+            resize: none;
+            transition: all 0.2s ease-in-out;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .input-area textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5);
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #f06, #9f6);
+            color: white;
+            border-radius: 100%;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .send-button svg {
+            fill: white;
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        /* --- Rules Page Styles --- */
+        .rules-view {
+            flex-grow: 1;
+            padding: 2rem;
+            display: none; /* Initially hidden */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .rules-slide {
+            display: none; /* Initially hidden */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background-color: #f9fafb;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            height: 100%;
+        }
+
+        .rules-slide.active {
+            display: flex;
+        }
+        
+        .rules-slide h2 {
+            font-size: 1.875rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .rules-slide p {
+            font-size: 1rem;
+            color: #4b5563;
+            line-height: 1.5;
+            max-width: 600px;
+        }
+
+        .slide-nav {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .slide-nav button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            background: #e5e7eb;
+            color: #4b5563;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .slide-nav button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-nav button:hover:not(:disabled) {
+            background-color: #d1d5db;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="header-left">
+            <div class="header-title">Skibidi Baddie Ticklers</div>
+            <div id="userIdDisplay" class="user-id-display">Connecting...</div>
+        </div>
+        <div class="header-buttons">
+            <button id="viewChatButton" class="header-button hidden">Chat</button>
+            <button id="viewRulesButton" class="header-button">Rules</button>
+        </div>
+    </div>
+    
+    <!-- Chat View -->
+    <div id="chatView" class="chat-view">
+        <div id="messageArea" class="message-area">
+            <!-- Messages will be injected here -->
+        </div>
+        <div class="input-area">
+            <textarea id="messageInput" rows="1" placeholder="Type a message or paste a URL..." class="resize-none overflow-hidden"></textarea>
+            <button id="sendButton" class="send-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Rules Page View -->
+    <div id="rulesView" class="rules-view">
+        <div id="rulesSlideContainer" class="w-full h-full flex flex-col items-center">
+            <div class="rules-slide active">
+                <h2>Welcome to the Chat</h2>
+                <p>Please follow these community rules to keep the chat a positive and fun place for everyone. Let's start with the basics of respectful communication.</p>
+                <div class="mt-4">
+                    <button id="goToChatFromRules" class="bg-indigo-500 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-all hover:bg-indigo-600">Go to Chat</button>
+                </div>
+            </div>
+            <div class="rules-slide">
+                <h2>Rule #1: Be Respectful</h2>
+                <p>Treat all users with kindness and respect. Harassment, hate speech, or personal attacks will not be tolerated. Think before you type!</p>
+            </div>
+            <div class="rules-slide">
+                <h2>Rule #2: Content Sharing</h2>
+                <p>Sharing is great, but only post appropriate content. No NSFW material, illegal files, or spam. Keep it clean and relevant to the conversation.</p>
+            </div>
+            <div class="rules-slide">
+                <h2>Rule #3: Stay On-Topic</h2>
+                <p>While you're free to chat about anything, please try to stay on-topic in specific discussion threads. This helps keep conversations organized and easy to follow.</p>
+            </div>
+        </div>
+        <div class="slide-nav mt-4">
+            <button id="prevSlideButton">Previous</button>
+            <button id="nextSlideButton">Next</button>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, addDoc, onSnapshot, collection, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Set Firebase log level for debugging
+    setLogLevel('Debug');
+
+    // These variables are provided by the canvas environment.
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+    let app;
+    let auth;
+    let db;
+    let userId;
+
+    let isAuthReady = false;
+
+    // --- DOM Elements ---
+    const chatView = document.getElementById('chatView');
+    const rulesView = document.getElementById('rulesView');
+    const messageArea = document.getElementById('messageArea');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const userIdDisplay = document.getElementById('userIdDisplay');
+    const viewChatButton = document.getElementById('viewChatButton');
+    const viewRulesButton = document.getElementById('viewRulesButton');
+    const goToChatFromRules = document.getElementById('goToChatFromRules');
+    const prevSlideButton = document.getElementById('prevSlideButton');
+    const nextSlideButton = document.getElementById('nextSlideButton');
+    const rulesSlides = document.querySelectorAll('.rules-slide');
+
+    let currentSlideIndex = 0;
+
+    // --- View Switching Logic ---
+    function showView(viewId) {
+        if (viewId === 'chat') {
+            chatView.style.display = 'flex';
+            rulesView.style.display = 'none';
+            viewChatButton.classList.add('hidden');
+            viewRulesButton.classList.remove('hidden');
+        } else if (viewId === 'rules') {
+            chatView.style.display = 'none';
+            rulesView.style.display = 'flex';
+            viewChatButton.classList.remove('hidden');
+            viewRulesButton.classList.add('hidden');
+            updateSlideView(); // Show the current slide
+        }
+    }
+
+    // --- Slide Navigation Logic ---
+    function updateSlideView() {
+        rulesSlides.forEach((slide, index) => {
+            slide.classList.remove('active');
+            if (index === currentSlideIndex) {
+                slide.classList.add('active');
+            }
+        });
+        prevSlideButton.disabled = currentSlideIndex === 0;
+        nextSlideButton.disabled = currentSlideIndex === rulesSlides.length - 1;
+    }
+
+    function nextSlide() {
+        if (currentSlideIndex < rulesSlides.length - 1) {
+            currentSlideIndex++;
+            updateSlideView();
+        }
+    }
+
+    function prevSlide() {
+        if (currentSlideIndex > 0) {
+            currentSlideIndex--;
+            updateSlideView();
+        }
+    }
+
+    // --- Firebase Initialization ---
+    async function initializeFirebase() {
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            // Set up an auth state change listener
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    isAuthReady = true;
+                    userIdDisplay.textContent = `User ID: ${userId}`;
+                    console.log('User signed in. UID:', userId);
+                    // Start listening for messages once authenticated
+                    listenForMessages();
+                } else {
+                    console.log('User signed out.');
+                }
+            });
+
+            // Sign in with the provided custom token or anonymously
+            if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+            } else {
+                await signInAnonymously(auth);
+            }
+        } catch (e) {
+            console.error("Error during Firebase initialization or sign-in:", e);
+            userIdDisplay.textContent = "Error: See console";
+        }
+    }
+
+    // --- Real-time Message Listener ---
+    function listenForMessages() {
+        if (!db || !isAuthReady) {
+            console.warn('Firestore is not ready. Skipping message listener setup.');
+            return;
+        }
+
+        const messagesCollection = collection(db, `artifacts/${appId}/public/data/messages`);
+        
+        // Use onSnapshot to get real-time updates without using orderBy
+        onSnapshot(messagesCollection, (querySnapshot) => {
+            const messages = [];
+            querySnapshot.forEach((doc) => {
+                messages.push(doc.data());
+            });
+
+            // Manually sort the messages by timestamp
+            messages.sort((a, b) => (a.timestamp ? a.timestamp.seconds : 0) - (b.timestamp ? b.timestamp.seconds : 0));
+            
+            // Clear the chat area and render the new messages
+            messageArea.innerHTML = '';
+            messages.forEach(msg => displayMessage(msg));
+
+            // Scroll to the bottom
+            messageArea.scrollTop = messageArea.scrollHeight;
+        });
+    }
+
+    // --- Message Rendering ---
+    function displayMessage(msg) {
+        const isSelf = msg.userId === userId;
+        const messageBubble = document.createElement('div');
+        messageBubble.classList.add('message-bubble', isSelf ? 'message-self' : 'message-other');
+
+        // Check for special content types
+        const isImage = msg.messageText.match(/\.(jpeg|jpg|gif|png|webp)$/i);
+        const isFile = msg.messageText.match(/\.(pdf|docx|txt|zip|rar)$/i);
+
+        // Render sender and timestamp
+        const sender = document.createElement('div');
+        sender.classList.add('message-sender');
+        sender.textContent = isSelf ? 'You' : `User: ${msg.userId.substring(0, 8)}`;
+        messageBubble.appendChild(sender);
+        
+        // Render content
+        if (isImage) {
+            const img = document.createElement('img');
+            img.src = msg.messageText;
+            img.classList.add('message-image');
+            img.onerror = () => img.src = `https://placehold.co/400x300/e5e7eb/6b7280?text=Image+Load+Error`;
+            messageBubble.appendChild(img);
+        } else if (isFile) {
+            const fileLink = document.createElement('a');
+            fileLink.href = msg.messageText;
+            fileLink.target = "_blank";
+            fileLink.classList.add('message-file');
+            fileLink.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                    <path d="M12 2A10 10 0 1 0 12 22A10 10 0 1 0 12 2ZM12 4.5A7.5 7.5 0 1 1 12 19.5A7.5 7.5 0 1 1 12 4.5ZM10.5 12V6H13.5V12H18L12 18L6 12H10.5Z" />
+                </svg>
+                <span>File Link</span>
+            `;
+            messageBubble.appendChild(fileLink);
+        } else {
+            const text = document.createElement('div');
+            text.classList.add('message-text');
+            text.textContent = msg.messageText;
+            messageBubble.appendChild(text);
+        }
+
+        const timestamp = document.createElement('div');
+        timestamp.classList.add('message-timestamp');
+        const date = msg.timestamp ? new Date(msg.timestamp.seconds * 1000) : new Date();
+        timestamp.textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        messageBubble.appendChild(timestamp);
+
+        messageArea.appendChild(messageBubble);
+    }
+
+    // --- Send Message Logic ---
+    async function sendMessage() {
+        const messageText = messageInput.value.trim();
+        if (messageText === '') return;
+
+        if (!db || !isAuthReady) {
+            console.error('Cannot send message: Firestore or Auth is not ready.');
+            return;
+        }
+
+        try {
+            const messagesCollectionRef = collection(db, `artifacts/${appId}/public/data/messages`);
+            const docRef = await addDoc(messagesCollectionRef, {
+                userId: userId,
+                messageText: messageText,
+                timestamp: new Date(),
+            });
+            console.log("Message sent with ID: ", docRef.id);
+            messageInput.value = '';
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+    }
+
+    // --- Event Listeners ---
+    viewChatButton.addEventListener('click', () => showView('chat'));
+    viewRulesButton.addEventListener('click', () => showView('rules'));
+    goToChatFromRules.addEventListener('click', () => showView('chat'));
+    prevSlideButton.addEventListener('click', prevSlide);
+    nextSlideButton.addEventListener('click', nextSlide);
+
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+        // Auto-resize textarea
+        messageInput.style.height = 'auto';
+        messageInput.style.height = messageInput.scrollHeight + 'px';
+    });
+    
+    // Initial setup on window load
+    window.onload = function() {
+        initializeFirebase();
+        showView('chat'); // Start on the chat view
+    };
+</script>
+
+</body>
+</html>
